@@ -1,13 +1,39 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { Chrome, TrendingUp, Shield, Zap, Lock, CheckCircle } from 'lucide-react';
+import { Chrome, TrendingUp, Shield, Zap, CheckCircle, Mail } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'sonner';
 
 export const Login: React.FC = () => {
-  const { user, isLoading, signInWithGoogle } = useAuth();
+  const {
+    user,
+    isLoading,
+    signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
+    resetPassword,
+    resendVerificationEmail,
+  } = useAuth();
   const navigate = useNavigate();
+  const [oauthLoading, setOauthLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [signupLoading, setSignupLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const emailConfirmationRequired = import.meta.env.VITE_EMAIL_CONFIRMATION_REQUIRED === 'true';
 
   useEffect(() => {
     if (user && !isLoading) {
@@ -16,7 +42,89 @@ export const Login: React.FC = () => {
   }, [user, isLoading, navigate]);
 
   const handleGoogleSignIn = async () => {
-    await signInWithGoogle();
+    try {
+      setOauthLoading(true);
+      await signInWithGoogle();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Google sign-in failed';
+      toast.error(message);
+      setOauthLoading(false);
+    }
+  };
+
+  const handleEmailSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      setEmailLoading(true);
+      await signInWithEmail(email.trim(), password);
+      toast.success('Signed in successfully', { duration: 2000 });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Sign-in failed';
+      toast.error(message);
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
+  const handleEmailSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (signUpPassword.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
+    }
+
+    if (signUpPassword !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    try {
+      setSignupLoading(true);
+      const result = await signUpWithEmail(signUpEmail.trim(), signUpPassword, fullName.trim() || undefined);
+      if (emailConfirmationRequired && result.requiresEmailVerification) {
+        setPendingVerificationEmail(signUpEmail.trim());
+        toast.success('Account created. Check your inbox to verify your email.');
+      } else {
+        setPendingVerificationEmail('');
+        toast.success('Account created and signed in successfully.');
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Sign-up failed';
+      toast.error(message);
+    } finally {
+      setSignupLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    try {
+      setForgotLoading(true);
+      await resetPassword(forgotEmail.trim());
+      toast.success('Password reset link sent. Please check your inbox.');
+      setShowForgotPassword(false);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to send reset email';
+      toast.error(message);
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    try {
+      setResendLoading(true);
+      await resendVerificationEmail(pendingVerificationEmail);
+      toast.success('Verification email resent successfully.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to resend verification email';
+      toast.error(message);
+    } finally {
+      setResendLoading(false);
+    }
   };
 
   return (
@@ -86,55 +194,164 @@ export const Login: React.FC = () => {
                 </p>
               </div>
 
-              <div className="space-y-4">
-                <Button
-                  onClick={handleGoogleSignIn}
-                  disabled={isLoading}
-                  className="w-full h-14 text-lg bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 shadow-sm relative overflow-hidden group"
-                  variant="outline"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                      <span>Signing in...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3">
-                      <Chrome className="w-6 h-6 text-[#4285F4]" />
-                      <span>Continue with Google</span>
+              <Tabs defaultValue="signin" className="space-y-4">
+                <TabsList className="grid w-full grid-cols-2 h-11">
+                  <TabsTrigger value="signin">Sign In</TabsTrigger>
+                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="signin" className="space-y-4">
+                  <form className="space-y-3" onSubmit={handleEmailSignIn}>
+                    <Input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      required
+                      className="h-11"
+                    />
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      required
+                      className="h-11"
+                    />
+                    <Button type="submit" disabled={isLoading || emailLoading} className="w-full h-11">
+                      {emailLoading ? 'Signing in...' : 'Sign in with Email'}
+                    </Button>
+                  </form>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotPassword((value) => !value);
+                      setForgotEmail(email);
+                    }}
+                    className="w-full text-sm text-primary hover:underline"
+                  >
+                    {showForgotPassword ? 'Hide password reset' : 'Forgot password?'}
+                  </button>
+
+                  {showForgotPassword && (
+                    <form className="space-y-3 rounded-lg border border-border p-3" onSubmit={handleForgotPassword}>
+                      <Input
+                        type="email"
+                        placeholder="Enter your account email"
+                        value={forgotEmail}
+                        onChange={(event) => setForgotEmail(event.target.value)}
+                        required
+                      />
+                      <Button type="submit" variant="outline" disabled={forgotLoading} className="w-full">
+                        {forgotLoading ? 'Sending reset link...' : 'Send reset link'}
+                      </Button>
+                    </form>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="signup" className="space-y-4">
+                  {!emailConfirmationRequired && (
+                    <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300">
+                      Development mode: email verification is disabled. New accounts sign in immediately after signup.
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                </Button>
 
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-card text-muted-foreground">Coming soon</span>
-                  </div>
+                  <form className="space-y-3" onSubmit={handleEmailSignUp}>
+                    <Input
+                      type="text"
+                      placeholder="Full name (optional)"
+                      value={fullName}
+                      onChange={(event) => setFullName(event.target.value)}
+                      className="h-11"
+                    />
+                    <Input
+                      type="email"
+                      placeholder="Email"
+                      value={signUpEmail}
+                      onChange={(event) => setSignUpEmail(event.target.value)}
+                      required
+                      className="h-11"
+                    />
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      value={signUpPassword}
+                      onChange={(event) => setSignUpPassword(event.target.value)}
+                      required
+                      className="h-11"
+                    />
+                    <Input
+                      type="password"
+                      placeholder="Confirm Password"
+                      value={confirmPassword}
+                      onChange={(event) => setConfirmPassword(event.target.value)}
+                      required
+                      className="h-11"
+                    />
+                    <Button type="submit" disabled={isLoading || signupLoading} className="w-full h-11">
+                      {signupLoading ? 'Creating account...' : 'Create account'}
+                    </Button>
+                  </form>
+
+                  {emailConfirmationRequired && pendingVerificationEmail && (
+                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        Verification email sent to <span className="text-foreground font-medium">{pendingVerificationEmail}</span>.
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleResendVerification}
+                        disabled={resendLoading}
+                      >
+                        {resendLoading ? 'Resending...' : 'Resend verification email'}
+                      </Button>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border" />
                 </div>
-
-                <Button
-                  disabled
-                  className="w-full h-14 text-lg opacity-50 cursor-not-allowed"
-                  variant="outline"
-                >
-                  <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                  </svg>
-                  Continue with GitHub
-                </Button>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-card text-muted-foreground">or continue with</span>
+                </div>
               </div>
+
+              <Button
+                onClick={handleGoogleSignIn}
+                disabled={isLoading || oauthLoading}
+                className="w-full h-12 text-base bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 shadow-sm relative overflow-hidden group"
+                variant="outline"
+              >
+                {oauthLoading ? (
+                  <div className="flex items-center gap-3">
+                    <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                    <span>Redirecting...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <Chrome className="w-5 h-5 text-[#4285F4]" />
+                    <span>Continue with Google</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              </Button>
 
               <div className="pt-6 border-t border-border">
                 <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20">
-                  <Lock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <Mail className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-muted-foreground">
-                    <p className="font-medium text-foreground mb-1">Demo Mode</p>
+                    <p className="font-medium text-foreground mb-1">Auth Setup</p>
                     <p>
-                      This is a demo authentication. Click "Continue with Google" to access the platform with a mock account.
+                      Configure Email and Google providers in your Supabase project settings to enable sign-up and social login.
+                    </p>
+                    <p className="mt-2 text-xs">
+                      To require email verification again, set <span className="text-foreground font-medium">VITE_EMAIL_CONFIRMATION_REQUIRED=true</span> and turn on Confirm email in Supabase.
                     </p>
                   </div>
                 </div>

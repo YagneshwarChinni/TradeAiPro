@@ -1,12 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { User, Mail, Calendar, TrendingUp, Chrome } from 'lucide-react';
 import { GlassCard } from '../components/GlassCard';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { useAuth } from '../contexts/AuthContext';
+import { getMockPortfolio, getMockStocks } from '../services/mockData';
 
 export const Profile: React.FC = () => {
   const { user } = useAuth();
+  const [portfolio, setPortfolio] = useState<any[]>([]);
+  const [watchlist, setWatchlist] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Load portfolio
+    const portfolioData = getMockPortfolio();
+    setPortfolio(portfolioData);
+
+    // Load watchlist (mock stocks)
+    const watchlistData = getMockStocks(4, 'US');
+    setWatchlist(watchlistData);
+  }, []);
 
   if (!user) return null;
 
@@ -51,7 +64,7 @@ export const Profile: React.FC = () => {
               
               <div className="flex-1">
                 <h2 className="text-2xl mb-1">{user.name}</h2>
-                <p className="text-muted-foreground mb-4">Premium Trader</p>
+                <p className="text-muted-foreground mb-4">{user.isAdmin ? 'Administrator' : 'TradeAI Member'}</p>
                 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 text-sm">
@@ -66,46 +79,41 @@ export const Profile: React.FC = () => {
                     <User className="w-4 h-4 text-muted-foreground" />
                     <span className="capitalize">Signed in with {user.provider}</span>
                   </div>
+                  <div className="flex items-center gap-3 text-sm">
+                    <Mail className="w-4 h-4 text-muted-foreground" />
+                    <span>Email {user.isEmailVerified ? 'verified' : 'not verified yet'}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </GlassCard>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <GlassCard>
-              <p className="text-sm text-muted-foreground mb-1">Total Trades</p>
-              <p className="text-3xl">247</p>
-            </GlassCard>
-          </motion.div>
+        {(portfolio.length > 0 || watchlist.length > 0) && (
+          <div className="grid md:grid-cols-2 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              <GlassCard>
+                <p className="text-sm text-muted-foreground mb-1">Win Rate</p>
+                <p className="text-3xl text-success">68.4%</p>
+              </GlassCard>
+            </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-          >
-            <GlassCard>
-              <p className="text-sm text-muted-foreground mb-1">Win Rate</p>
-              <p className="text-3xl text-success">68.4%</p>
-            </GlassCard>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <GlassCard>
-              <p className="text-sm text-muted-foreground mb-1">Total Return</p>
-              <p className="text-3xl text-success">+24.7%</p>
-            </GlassCard>
-          </motion.div>
-        </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <GlassCard>
+                <p className="text-sm text-muted-foreground mb-1">Total Return</p>
+                <p className="text-3xl text-success">+24.7%</p>
+              </GlassCard>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );

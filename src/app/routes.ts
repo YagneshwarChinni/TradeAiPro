@@ -1,7 +1,10 @@
 import { createBrowserRouter } from 'react-router';
+import { createElement } from 'react';
+import type { ComponentType } from 'react';
 import { Layout } from './components/Layout';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
+import { ResetPassword } from './pages/ResetPassword';
 import { Dashboard } from './pages/Dashboard';
 import { StockExplorer } from './pages/StockExplorer';
 import { ChartPage } from './pages/ChartPage';
@@ -17,6 +20,17 @@ import { AIInsights } from './pages/AIInsights';
 import { Profile } from './pages/Profile';
 import { Settings } from './pages/Settings';
 import { LiveMarketData } from './pages/LiveMarketData';
+import { AdminDashboard } from './pages/AdminDashboard';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { AdminRoute } from './components/AdminRoute';
+
+const protectedPage = (PageComponent: ComponentType) => {
+  return () => createElement(ProtectedRoute, null, createElement(PageComponent));
+};
+
+const adminPage = (PageComponent: ComponentType) => {
+  return () => createElement(AdminRoute, null, createElement(PageComponent));
+};
 
 export const router = createBrowserRouter([
   {
@@ -25,21 +39,23 @@ export const router = createBrowserRouter([
     children: [
       { index: true, Component: Landing },
       { path: 'login', Component: Login },
-      { path: 'dashboard', Component: Dashboard },
-      { path: 'live-data', Component: LiveMarketData },
-      { path: 'stocks', Component: StockExplorer },
-      { path: 'chart', Component: ChartPage },
-      { path: 'watchlist', Component: Watchlist },
-      { path: 'portfolio', Component: Portfolio },
-      { path: 'trading', Component: TradingSimulator },
-      { path: 'heatmap', Component: Heatmap },
-      { path: 'crypto', Component: Crypto },
-      { path: 'global', Component: Global },
-      { path: 'screener', Component: Screener },
-      { path: 'news', Component: News },
-      { path: 'ai-insights', Component: AIInsights },
-      { path: 'profile', Component: Profile },
-      { path: 'settings', Component: Settings },
+      { path: 'reset-password', Component: ResetPassword },
+      { path: 'dashboard', Component: protectedPage(Dashboard) },
+      { path: 'live-data', Component: protectedPage(LiveMarketData) },
+      { path: 'stocks', Component: protectedPage(StockExplorer) },
+      { path: 'chart', Component: protectedPage(ChartPage) },
+      { path: 'watchlist', Component: protectedPage(Watchlist) },
+      { path: 'portfolio', Component: protectedPage(Portfolio) },
+      { path: 'trading', Component: protectedPage(TradingSimulator) },
+      { path: 'heatmap', Component: protectedPage(Heatmap) },
+      { path: 'crypto', Component: protectedPage(Crypto) },
+      { path: 'global', Component: protectedPage(Global) },
+      { path: 'screener', Component: protectedPage(Screener) },
+      { path: 'news', Component: protectedPage(News) },
+      { path: 'ai-insights', Component: protectedPage(AIInsights) },
+      { path: 'profile', Component: protectedPage(Profile) },
+      { path: 'settings', Component: protectedPage(Settings) },
+      { path: 'admin', Component: adminPage(AdminDashboard) },
     ],
   },
 ]);

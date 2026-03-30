@@ -1,23 +1,24 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { useAuth } from '../contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-interface ProtectedRouteProps {
+interface AdminRouteProps {
   children: React.ReactNode;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoading && !user) {
       navigate('/login', { replace: true });
+      return;
     }
 
-    if (!isLoading && user?.isDisabled) {
-      navigate('/login', { replace: true });
+    if (!isLoading && user && !user.isAdmin) {
+      navigate('/dashboard', { replace: true });
     }
   }, [user, isLoading, navigate]);
 
@@ -32,7 +33,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user || user.isDisabled) {
+  if (!user || !user.isAdmin) {
     return null;
   }
 

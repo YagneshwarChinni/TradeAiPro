@@ -12,6 +12,7 @@ import {
   Filter,
   Newspaper,
   Sparkles,
+  Shield,
   User,
   Settings,
   LogOut,
@@ -47,11 +48,14 @@ const navigation = [
   { name: 'AI Insights', href: '/ai-insights', icon: Sparkles },
 ];
 
+const adminNavigation = { name: 'Admin', href: '/admin', icon: Shield };
+
 export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const navItems = user?.isAdmin ? [...navigation, adminNavigation] : navigation;
 
   const handleSignOut = async () => {
     await signOut();
@@ -79,7 +83,7 @@ export const Navbar: React.FC = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1">
-            {navigation.map((item) => {
+            {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.href;
               
@@ -143,6 +147,12 @@ export const Navbar: React.FC = () => {
                       <Settings className="w-4 h-4 mr-2" />
                       Settings
                     </DropdownMenuItem>
+                    {user.isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate('/admin')}>
+                        <Shield className="w-4 h-4 mr-2" />
+                        Admin Dashboard
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
                       <LogOut className="w-4 h-4 mr-2" />
@@ -186,7 +196,7 @@ export const Navbar: React.FC = () => {
                   
                   {/* Mobile Navigation */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-1">
-                    {navigation.map((item) => {
+                    {navItems.map((item) => {
                       const Icon = item.icon;
                       const isActive = location.pathname === item.href;
                       
