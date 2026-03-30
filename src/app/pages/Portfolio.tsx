@@ -69,20 +69,20 @@ export const Portfolio: React.FC = () => {
   }));
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6">
-      <div className="max-w-[1920px] mx-auto space-y-8">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-8 sm:pb-12 px-3 sm:px-4 md:px-6">
+      <div className="max-w-[1920px] mx-auto space-y-6 sm:space-y-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl">Portfolio</h1>
-            <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-success/20 text-success text-sm">
-              <Activity className="w-4 h-4 animate-pulse" />
-              LIVE
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Portfolio</h1>
+            <span className="flex items-center gap-2 px-2 sm:px-3 py-1 rounded-full bg-success/20 text-success text-xs sm:text-sm">
+              <Activity className="w-3 h-3 sm:w-4 sm:h-4 animate-pulse flex-shrink-0" />
+              <span className="hidden xs:inline">LIVE</span>
             </span>
           </div>
-          <p className="text-muted-foreground">Track your US & Indian investments and performance in real-time</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">Track your US & Indian investments and performance in real-time</p>
         </motion.div>
 
         {/* Market Status Bar */}
@@ -94,17 +94,17 @@ export const Portfolio: React.FC = () => {
           <MarketStatusBar />
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <GlassCard glow="blue">
-              <p className="text-sm text-muted-foreground mb-1">Total Portfolio Value</p>
-              <p className="text-4xl tabular-nums mb-2">₹{totalValue.toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
-              <div className={`flex items-center gap-2 ${totalChange >= 0 ? 'text-success' : 'text-destructive'}`}>
-                {totalChange >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+            <GlassCard glow="blue" className="h-full">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-1">Total Portfolio Value</p>
+              <p className="text-2xl sm:text-3xl md:text-4xl tabular-nums mb-2">₹{totalValue.toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
+              <div className={`flex items-center gap-2 text-xs sm:text-sm ${totalChange >= 0 ? 'text-success' : 'text-destructive'}`}>
+                {totalChange >= 0 ? <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" /> : <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4" />}
                 <span>{totalChange >= 0 ? '+' : ''}₹{totalChange.toFixed(2)} ({totalChange >= 0 ? '+' : ''}{totalChangePercent.toFixed(2)}%)</span>
               </div>
               <p className="text-xs text-muted-foreground mt-2">All prices in Indian Rupees (₹)</p>
@@ -116,10 +116,10 @@ export const Portfolio: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            <GlassCard>
-              <p className="text-sm text-muted-foreground mb-1">Total Invested</p>
-              <p className="text-4xl tabular-nums mb-2">₹{(totalValue - totalChange).toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
-              <p className="text-sm text-muted-foreground">Across {portfolio.length} positions</p>
+            <GlassCard className="h-full">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-1">Total Invested</p>
+              <p className="text-2xl sm:text-3xl md:text-4xl tabular-nums mb-2">₹{(totalValue - totalChange).toLocaleString('en-US', { maximumFractionDigits: 2 })}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Across {portfolio.length} positions</p>
             </GlassCard>
           </motion.div>
 
@@ -128,28 +128,28 @@ export const Portfolio: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <GlassCard>
-              <p className="text-sm text-muted-foreground mb-1">Today's Return</p>
-              <p className="text-4xl tabular-nums mb-2">₹{(totalChange * 0.1).toFixed(2)}</p>
-              <div className={`text-sm ${totalChange >= 0 ? 'text-success' : 'text-destructive'}`}>
+            <GlassCard className="h-full">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-1">Today's Return</p>
+              <p className="text-2xl sm:text-3xl md:text-4xl tabular-nums mb-2">₹{(totalChange * 0.1).toFixed(2)}</p>
+              <div className={`text-xs sm:text-sm ${totalChange >= 0 ? 'text-success' : 'text-destructive'}`}>
                 {totalChange >= 0 ? '+' : ''}{(totalChangePercent * 0.1).toFixed(2)}%
               </div>
             </GlassCard>
           </motion.div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.25 }}
           >
             <GlassCard className="h-full">
-              <div className="flex items-center gap-2 mb-6">
-                <PieChartIcon className="w-5 h-5 text-primary" />
-                <h2 className="text-xl">Asset Allocation</h2>
+              <div className="flex items-center gap-2 mb-4 sm:mb-6">
+                <PieChartIcon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <h2 className="text-lg sm:text-xl font-semibold">Asset Allocation</h2>
               </div>
-              <div className="h-80">
+              <div className="h-60 sm:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -158,7 +158,7 @@ export const Portfolio: React.FC = () => {
                       cy="50%"
                       labelLine={false}
                       label={(entry) => entry.name}
-                      outerRadius={100}
+                      outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -179,8 +179,8 @@ export const Portfolio: React.FC = () => {
             transition={{ delay: 0.3 }}
           >
             <GlassCard className="h-full">
-              <h2 className="text-xl mb-6">30-Day Performance</h2>
-              <div className="h-80">
+              <h2 className="text-lg sm:text-xl mb-4 sm:mb-6 font-semibold">30-Day Performance</h2>
+              <div className="h-60 sm:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={performanceData}>
                     <XAxis dataKey="day" stroke="#94A3B8" />
@@ -206,15 +206,16 @@ export const Portfolio: React.FC = () => {
           transition={{ delay: 0.35 }}
         >
           <GlassCard>
-            <h2 className="text-xl mb-6">Holdings</h2>
-            <div className="space-y-4">
-              <div className="flex items-center text-sm text-muted-foreground pb-2 border-b border-border">
-                <div className="flex-1">Symbol / Name / Exchange</div>
-                <div className="w-24 text-right">Quantity</div>
-                <div className="w-32 text-right">Avg Price</div>
-                <div className="w-32 text-right">Current Price</div>
-                <div className="w-32 text-right">Value</div>
-                <div className="w-32 text-right">Return</div>
+            <h2 className="text-lg sm:text-xl mb-4 sm:mb-6 font-semibold">Holdings</h2>
+            <div className="space-y-2 sm:space-y-4 overflow-x-auto">
+              {/* Desktop View */}
+              <div className="hidden md:flex items-center text-xs sm:text-sm text-muted-foreground pb-2 border-b border-border">
+                <div className="flex-1">Symbol / Name</div>
+                <div className="w-20 text-right">Qty</div>
+                <div className="w-28 text-right">Avg Price</div>
+                <div className="w-28 text-right">Current</div>
+                <div className="w-28 text-right">Value</div>
+                <div className="w-28 text-right">Return</div>
               </div>
 
               {portfolio.map((item, index) => {

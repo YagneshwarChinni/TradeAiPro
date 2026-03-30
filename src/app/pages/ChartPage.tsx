@@ -86,33 +86,33 @@ export const ChartPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6">
-      <div className="max-w-[1920px] mx-auto space-y-6">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-8 sm:pb-12 px-3 sm:px-4 md:px-6">
+      <div className="max-w-[1920px] mx-auto space-y-4 sm:space-y-6">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-start justify-between"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4"
         >
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-4xl mb-1">{stock.symbol}</h1>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">{stock.symbol}</h1>
               {isLive && (
-                <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-success/20 text-success text-sm">
+                <span className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-success/20 text-success text-xs sm:text-sm flex-shrink-0">
                   <Activity className="w-4 h-4 animate-pulse" />
                   LIVE
                 </span>
               )}
             </div>
-            <p className="text-muted-foreground">{stock.name}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">{stock.name}</p>
             <span className="inline-block mt-1 px-2 py-0.5 rounded text-xs bg-primary/10 text-primary">
               {stock.exchange}
             </span>
           </div>
           <div className="text-right">
-            <div className="text-4xl tabular-nums mb-1">{formatPrice(stock.price)}</div>
-            <div className={`flex items-center gap-2 justify-end ${isPositive ? 'text-success' : 'text-destructive'}`}>
-              {isPositive ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
-              <span className="text-xl">
+            <div className="text-2xl sm:text-3xl md:text-4xl tabular-nums mb-1">{formatPrice(stock.price)}</div>
+            <div className={`flex items-center gap-1 sm:gap-2 justify-end text-xs sm:text-sm ${isPositive ? 'text-success' : 'text-destructive'}`}>
+              {isPositive ? <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" /> : <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />}
+              <span>
                 {isPositive ? '+' : ''}{formatPrice(Math.abs(stock.change))} ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
               </span>
             </div>
@@ -124,28 +124,28 @@ export const ChartPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <GlassCard className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <h2 className="text-xl">Price Chart</h2>
+          <GlassCard className="p-3 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+                <h2 className="text-lg sm:text-xl font-semibold">Price Chart</h2>
                 <Button
                   variant={isLive ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setIsLive(!isLive)}
-                  className={isLive ? 'shadow-lg shadow-success/30' : ''}
+                  className={`text-xs sm:text-sm ${isLive ? 'shadow-lg shadow-success/30' : ''}`}
                 >
-                  <Activity className={`w-4 h-4 mr-2 ${isLive ? 'animate-pulse' : ''}`} />
-                  {isLive ? 'Live Updates ON' : 'Live Updates OFF'}
+                  <Activity className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${isLive ? 'animate-pulse' : ''}`} />
+                  {isLive ? 'Live' : 'Off'}
                 </Button>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1 sm:gap-2 flex-wrap">
                 {timeframes.map((tf) => (
                   <Button
                     key={tf}
                     variant={timeframe === tf ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setTimeframe(tf)}
-                    className={timeframe === tf ? 'shadow-lg shadow-primary/30' : ''}
+                    className={`text-xs sm:text-sm px-2 sm:px-3 ${timeframe === tf ? 'shadow-lg shadow-primary/30' : ''}`}
                   >
                     {tf}
                   </Button>
@@ -153,7 +153,7 @@ export const ChartPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="h-[500px]">
+            <div className="h-60 sm:h-80 md:h-[500px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -165,11 +165,11 @@ export const ChartPage: React.FC = () => {
                   <XAxis 
                     dataKey="time" 
                     stroke="#94A3B8"
-                    tick={{ fill: '#94A3B8' }}
+                    tick={{ fill: '#94A3B8', fontSize: 12 }}
                   />
                   <YAxis 
                     stroke="#94A3B8"
-                    tick={{ fill: '#94A3B8' }}
+                    tick={{ fill: '#94A3B8', fontSize: 12 }}
                     domain={['auto', 'auto']}
                   />
                   <Tooltip
@@ -178,6 +178,7 @@ export const ChartPage: React.FC = () => {
                       border: '1px solid rgba(51, 65, 85, 0.3)',
                       borderRadius: '0.5rem',
                       color: '#F1F5F9',
+                      fontSize: 12,
                     }}
                     formatter={(value: any) => [`₹${value.toFixed(2)}`, 'Price']}
                     labelFormatter={(label) => `Date: ${label}`}
@@ -196,7 +197,7 @@ export const ChartPage: React.FC = () => {
           </GlassCard>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6">
           {[
             { label: 'Open', value: formatPrice(stock.open) },
             { label: 'High', value: formatPrice(stock.high) },
@@ -213,9 +214,9 @@ export const ChartPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + index * 0.05 }}
             >
-              <GlassCard>
-                <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
-                <p className="text-2xl tabular-nums">{stat.value}</p>
+              <GlassCard className="h-full">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-1">{stat.label}</p>
+                <p className="text-lg sm:text-xl md:text-2xl tabular-nums font-semibold">{stat.value}</p>
               </GlassCard>
             </motion.div>
           ))}

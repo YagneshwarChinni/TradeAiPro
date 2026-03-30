@@ -8,7 +8,7 @@ export const Layout: React.FC = () => {
   const isLoginPage = location.pathname === '/login';
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-screen overflow-x-hidden">
       {!isLandingPage && !isLoginPage && <Navbar />}
       <Outlet />
     </div>
